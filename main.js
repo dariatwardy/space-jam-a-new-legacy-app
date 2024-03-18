@@ -15,7 +15,7 @@ var quarterPER = 0;
 var quarterAvePER = 0;
 var totalAvePER = 0;
 
-// Function to read in all player stats.
+// Function to read in all the player stats
 function processPlayers(allPlayerStats) {
     // Split the data by newline into an array.
     var allPlayerStatLines = allPlayerStats.split(/\r\n|\n/);
@@ -23,7 +23,7 @@ function processPlayers(allPlayerStats) {
     // Remove the header line (first line)
     allPlayerStatLines.shift();
 
-    // Loop through the 15 players and create a map entry of player name to player PER
+    // Loop through the rows and create a map entry of player name to a list of player PER
     for (var statLine of allPlayerStatLines) {
         // Get all individual stat values
         var stats = statLine.split(',');
@@ -31,16 +31,16 @@ function processPlayers(allPlayerStats) {
         if (!stats || stats.length <= 1) continue; // empty line
 
         // The second column has the player name
-        var playerName = stats[nameIndex];
+        var playerName = stats[1];
 
-        // check if player exists in map
+        // Check if player exists in map
         if (!playerMap.has(playerName)) {
             // First time we see the player; Add them in!
             playerMap.set(playerName, []);
         }
 
         // Get per value for player
-        var per = parseFloat(stats[perIndex]);
+        var per = parseFloat(stats[9]);
 
         // Add per value to player's array (the next quarter)
         playerMap.get(playerName).push(per);
@@ -54,7 +54,7 @@ function processPlayers(allPlayerStats) {
 function displayPlayerBench() {
     // Get the bench div in which the players will be shown.
     var bench = document.getElementById('playersOnBench');
-
+    // For each player, create a button 
     // For each player, create a button 
     for (let playerName of playerMap.keys()) {
         // Create a button for each player
@@ -73,7 +73,7 @@ function displayPlayerBench() {
         var playerImage = document.createElement('img');
 
         // Set the source (or location) of the image
-        playerImage.src = 'images/'+playerName+'.png';
+        playerImage.src = 'images/' + playerName + '.png';
 
         // Add the image to the button
         newPlayer.appendChild(playerImage);
@@ -82,16 +82,10 @@ function displayPlayerBench() {
         bench.appendChild(newPlayer);
     }
 
-
     // Display cards for all players
     displayPlayerCards();
-
 }
 
-// This function is called at the beginning of the game play to initialize
-// PER for each player, and at each quarter to do two things: 
-// 1. Ensure the players currently on the court have the correct PER represented
-// 2. Update the stats for each player for the current quarter
 // This function is called at the beginning of the game play to initialize
 // PER for each player, and at each quarter to do two things: 
 // 1. Ensure the players currently on the court have the correct PER represented
@@ -119,7 +113,7 @@ function displayPlayerCards() {
         playerImage.className = 'perCard';
 
         // Load the image
-        playerImage.src = 'images/'+playerName+'.png';
+        playerImage.src = 'images/' + playerName + '.png';
 
         // Add the image to the card
         playerCard.appendChild(playerImage);
@@ -146,7 +140,7 @@ function displayPlayerCards() {
 // court or moving to the bench for a water break.
 function movePlayer() {
     // Don't let the coach change players during a quarter.
-    if(quarterInPlay) {
+    if (quarterInPlay) {
         return;
     }
 
@@ -154,10 +148,10 @@ function movePlayer() {
     var parentDiv = this.parentElement;
 
     // Check whether the player is currently on the bench.
-    if(parentDiv.id == 'playersOnBench') {
+    if (parentDiv.id == 'playersOnBench') {
         // If there are already five players on the court, don't let the player
         // move to the court, and alert the coach that there are enough players.
-        if(playersOnCourt >= maxPlayersOnCourt){
+        if (playersOnCourt >= maxPlayersOnCourt) {
             alert('You can only have ' + maxPlayersOnCourt + ' players on the court at a time.');
         } else {
             // If there is room on the court, update the number of players on
@@ -166,8 +160,8 @@ function movePlayer() {
             playersOnCourt++;
             quarterPER += playerMap.get(this.id)[currentQuarter];
             quarterAvePER = quarterPER / playersOnCourt;
-            document.getElementById('currentPER').innerText = 'Current PER: '+ quarterAvePER.toPrecision(4);
-            
+            document.getElementById('currentPER').innerText = 'Current PER: ' + quarterAvePER.toPrecision(4);
+
             // Move the player to the court.
             document.getElementById('playersOnCourt').appendChild(this);
         }
@@ -177,7 +171,7 @@ function movePlayer() {
         // average.
         playersOnCourt--;
 
-        if(playersOnCourt != 0) {
+        if (playersOnCourt != 0) {
             quarterPER -= playerMap.get(this.id)[currentQuarter];
             quarterAvePER = quarterPER / playersOnCourt;
         } else {
@@ -187,7 +181,7 @@ function movePlayer() {
         }
 
         // Update the PER average. This might result in a zero value if your team is particularly tired.
-        document.getElementById('currentPER').innerText = 'Current PER: '+ quarterAvePER.toPrecision(4);
+        document.getElementById('currentPER').innerText = 'Current PER: ' + quarterAvePER.toPrecision(4);
 
         // Move the player to the bench.
         document.getElementById('playersOnBench').appendChild(this);
@@ -201,7 +195,7 @@ function updateCardsInGame() {
     // For each player, update their player stat card to show PER for that player for 
     // a specific quarter.
     for (let [playerName, playerStats] of playerMap.entries()) {
-        document.getElementById(playerName + '_card').children[1].innerText = 'PER: '+playerStats[currentQuarter].toPrecision(4);
+        document.getElementById(playerName + '_card').children[1].innerText = 'PER: ' + playerStats[currentQuarter].toPrecision(4);
     }
 
     // Reset the current quarter's total PER.
@@ -212,7 +206,7 @@ function updateCardsInGame() {
     var currentPlayers = document.getElementById('playersOnCourt').children;
 
     // Loop through each of the players currently on the court.
-    for(var playerIndex = 0; playerIndex < currentPlayers.length; playerIndex++) {
+    for (var playerIndex = 0; playerIndex < currentPlayers.length; playerIndex++) {
         // Get the name of the player
         var playerName = currentPlayers[playerIndex].id;
 
@@ -228,7 +222,7 @@ function updateCardsInGame() {
 
     // Update Current PER with the new average PER for the quarter now that the
     // stats have been updated.
-    document.getElementById('currentPER').innerText = 'Current PER: '+ quarterAvePER.toPrecision(4);
+    document.getElementById('currentPER').innerText = 'Current PER: ' + quarterAvePER.toPrecision(4);
 }
 
 // At the end of each quarter, show the coach the average PER
@@ -236,7 +230,7 @@ function updateCardsInGame() {
 // players on the court again, and add the stats for the next quarter to the game.
 function endQuarter() {
     // Update the clock display
-    document.getElementById('timer').innerText = 'Q '+ (currentQuarter + 1) + ' Time: 0:00';
+    document.getElementById('timer').innerText = 'Q ' + (currentQuarter + 1) + ' Time: 0:00';
 
     // Allow the coach to move players again.
     quarterInPlay = false;
@@ -254,13 +248,13 @@ function endQuarter() {
     updateCardsInGame();
 
     // Let the coach know that the new PER stats are up to date. 
-    alert('Q' + (currentQuarter+1) + ' PER stats are in!');
+    alert('Q' + (currentQuarter + 1) + ' PER stats are in!');
 
     // Encourage the coach to consider new players.
-    document.getElementById('quarter').innerText = 'Choose Players for Q'+(currentQuarter+1);
+    document.getElementById('quarter').innerText = 'Choose Players for Q' + (currentQuarter + 1);
 
     // Update the button text.
-    document.getElementById('start').innerText = 'Start Q'+(currentQuarter+1);
+    document.getElementById('start').innerText = 'Start Q' + (currentQuarter + 1);
 }
 
 // At the end of the game, show the coach the average PER
@@ -271,7 +265,7 @@ function endGame() {
 
     // Calculate the average PER for the entire game, including the last quarter.
     totalAvePER += parseFloat(quarterAvePER);
-    var averagePER = totalAvePER/numQuarters;
+    var averagePER = totalAvePER / numQuarters;
 
     // Let the coach know that the game is over and what the PER was for the game.
     alert('Game Over. Game Average PER was: ' + averagePER.toPrecision(4));
@@ -289,7 +283,7 @@ function endGame() {
 // to the next quarter.
 function startNextQuarter() {
     // If there aren't exactly five players on the court, alert the coach that the game can't start.
-    if(playersOnCourt != maxPlayersOnCourt){
+    if (playersOnCourt != maxPlayersOnCourt) {
         alert('Choose exactly ' + maxPlayersOnCourt + ' players to be on the court.');
         return;
     }
@@ -306,9 +300,9 @@ function startNextQuarter() {
 
     // Update the count down every 1 second, as indicated by the `1000` as
     // the second parameter to the setInterval function
-    var x = setInterval(function() {        
+    var x = setInterval(function () {
         // Display the current time on the court board.
-        document.getElementById('timer').innerText = 'Q '+ (currentQuarter + 1) + ' Time: ' + secondsInQuarter + ':00';
+        document.getElementById('timer').innerText = 'Q ' + (currentQuarter + 1) + ' Time: ' + secondsInQuarter + ':00';
 
         // Decrement the interval counter for this quarter.
         secondsInQuarter--;
@@ -316,7 +310,7 @@ function startNextQuarter() {
         // If the quarter has ended, reset the interval timer and get ready for the next quarter.
         if (secondsInQuarter < 0) {
             clearInterval(x);
-            if(currentQuarter < 3) {
+            if (currentQuarter < 3) {
                 endQuarter();
             }
             else {
